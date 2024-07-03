@@ -91,19 +91,22 @@ end_node_x = int(input("X: "))
 end_node_y = int(input("Y: "))
 end_node = (end_node_x, end_node_y)
 
-#compute simplified graph for A* to search. Removes nodes of order 2 that arent corners
+#compute simplified graph for A* to search. Removes nodes of order 2
 print("Pruning maze graph")
 maze_sGraph = copy.deepcopy(maze_Graph)
-for k in range(5):
+while True:
     s_graph_nodes = list(maze_sGraph.nodes)
     to_remove = []
     for i in s_graph_nodes:
         neighbors = list(maze_sGraph.neighbors(i))
         if len(neighbors) == 2:
-            if neighbors[0][0] == neighbors[1][0] or neighbors[0][1] == neighbors[1][1]:
+            if neighbors[0][0] == neighbors[1][0] or neighbors[0][1] == neighbors[1][1]: 
                 if i != start_node and i != end_node:
                     maze_sGraph.add_edge(neighbors[0],  neighbors[1], cost=(abs(neighbors[0][0] - neighbors[1][0]) + abs(neighbors[0][1] - neighbors[1][1])))
                     to_remove.append(i)
+
+    if len(to_remove) == 0:
+        break
 
     for i in to_remove:
         maze_sGraph.remove_node(i)
@@ -113,8 +116,8 @@ for k in range(5):
 
 # pygame setup
 pygame.init()
-res_x = 1280
-res_y = 720
+res_x = 1000
+res_y = 600
 screen = pygame.display.set_mode((res_x, res_y))
 maze_wall_surface = pygame.Surface((res_x, res_y))
 clock = pygame.time.Clock()
@@ -181,8 +184,10 @@ end_time = None
 
 def main():
     running = True
-    found = False
+    state = 0
     while running:
+        update_rects = []
+
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
@@ -195,7 +200,7 @@ def main():
         #Draw maze walls
         screen.blit(maze_wall_surface, (0,0))
         
-        if found == False:
+        if state == 0:
             if not frontier.empty():
                 current = frontier.get()
                 for i in frontier.queue:
@@ -230,6 +235,11 @@ def main():
                 last_coord = temp_coord
                 temp_coord = came_from[temp_coord]
                 pygame.draw.line(screen, "green", (maze_to_screen_coords_lookup[last_coord][0] + (cell_size_x/2), maze_to_screen_coords_lookup[last_coord][1] + (cell_size_y/2)), (maze_to_screen_coords_lookup[temp_coord][0] + (cell_size_x/2), maze_to_screen_coords_lookup[temp_coord][1] + (cell_size_y/2)), 1)
+                n = list(maze_Graph.neighbors(last_coord))
+                if temp_coord not in n:
+                    print("  ")
+                    
+                else:
 
 
 
